@@ -11,8 +11,10 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Service
 @Slf4j
@@ -73,6 +75,13 @@ public class NotificationService {
         preferenceService.savePreferences(defaultUserPreference);
         log.info("Default preferences created for userId={}", userId);
     }
+
+    public List<NotificationDto> getNotificationsForUser(String userID){
+        List<Notification> notification = notificationRepository.findByUserId();
+
+        return notification.stream().map(this::toDTO).collect(Collectors.toList());
+    }
+
 
     private NotificationDto toDTO(Notification savedNotification) {
         NotificationDto notificationDto = new NotificationDto();
