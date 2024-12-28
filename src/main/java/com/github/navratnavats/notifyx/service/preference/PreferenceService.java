@@ -3,26 +3,28 @@ package com.github.navratnavats.notifyx.service.preference;
 import com.github.navratnavats.notifyx.dto.UserPreferencesDto;
 import com.github.navratnavats.notifyx.model.UserPreferences;
 import com.github.navratnavats.notifyx.repository.UserPreferencesRepository;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
 
 @Service
+@Slf4j
 public class PreferenceService {
 
     @Autowired
     UserPreferencesRepository preferencesRepository;
 
-    public UserPreferencesDto savePreferences(UserPreferencesDto preferencesDto){
+    public UserPreferencesDto savePreferences(UserPreferencesDto preferencesDto) {
+        log.info("Saving user preferences: userId={}", preferencesDto.getId());
         UserPreferences preferences = new UserPreferences();
-
         preferences.setPreferredChannels(preferencesDto.getPreferredChannels());
         preferences.setId(preferencesDto.getId());
         preferences.setMutedPreferences(preferencesDto.getMutedPreferences());
 
         UserPreferences savedPreference = preferencesRepository.save(preferences);
-
+        log.info("Preferences saved: userId={}", preferencesDto.getId());
         return toDTO(savedPreference);
     }
 
