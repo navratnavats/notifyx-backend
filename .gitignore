@@ -1,10 +1,11 @@
-HELP.md
+# Maven target directory
 target/
-!.mvn/wrapper/maven-wrapper.jar
-!**/src/main/**/target/
-!**/src/test/**/target/
 
-### STS ###
+# Maven Wrapper
+!.mvn/wrapper/maven-wrapper.jar
+
+# IDE-specific files
+### Eclipse / STS ###
 .apt_generated
 .classpath
 .factorypath
@@ -14,7 +15,7 @@ target/
 .sts4-cache
 
 ### IntelliJ IDEA ###
-.idea
+.idea/
 *.iws
 *.iml
 *.ipr
@@ -25,9 +26,26 @@ target/
 /dist/
 /nbdist/
 /.nb-gradle/
-build/
-!**/src/main/**/build/
-!**/src/test/**/build/
 
 ### VS Code ###
 .vscode/
+
+# Logs
+logs/
+*.log
+
+# Environment files
+.env
+
+# macOS
+.DS_Store
+
+# Embedded databases
+*.h2.db
+*.mv.db
+
+# Node.js (if applicable)
+node_modules/
+
+# Additional build directories
+build/
