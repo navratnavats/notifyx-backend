@@ -13,6 +13,7 @@ public class Security {
         httpSecurity
                 .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(auth -> auth
+                        .requestMatchers("/**").permitAll()
                         .requestMatchers("/actuator/**").permitAll()
                         .requestMatchers("ws/notification").permitAll()
                         .anyRequest().authenticated()

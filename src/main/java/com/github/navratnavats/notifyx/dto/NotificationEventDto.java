@@ -5,6 +5,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.util.List;
 import java.util.Map;
 
 @AllArgsConstructor
@@ -12,18 +13,20 @@ import java.util.Map;
 @Setter
 @NoArgsConstructor
 public class NotificationEventDto {
-    private String userID;
+    private String userId;
     private String eventType;
     private String message;
+    private List<String> channels;
     private Map<String, Object> metadata;
 
     @Override
     public String toString() {
         return "NotificationEvent{" +
-                "userID='" + userID + '\'' +
+                "userID='" + userId + '\'' +
                 ", eventType='" + eventType + '\'' +
                 ", message='" + message + '\'' +
-                ", metadata=" + metadata +
+                ", metadata=" + metadata + '\''+
+                ", channel=" + channels +
                 '}';
     }
 }

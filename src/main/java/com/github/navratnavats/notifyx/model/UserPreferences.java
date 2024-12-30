@@ -17,14 +17,14 @@ import java.util.List;
 public class UserPreferences {
 
     @Id
-    private String id;
+    private String userId;
     private List<String> preferredChannels;
     private List<String> mutedPreferences;
 
     @Override
     public String toString() {
         return "UserPreferences{" +
-                "id='" + id + '\'' +
+                "id='" + userId + '\'' +
                 ", preferredChannels=" + preferredChannels +
                 ", mutedPreferences=" + mutedPreferences +
                 '}';
