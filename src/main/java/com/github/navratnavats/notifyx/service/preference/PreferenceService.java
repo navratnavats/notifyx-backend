@@ -7,6 +7,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.Arrays;
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -17,14 +19,14 @@ public class PreferenceService {
     UserPreferencesRepository preferencesRepository;
 
     public UserPreferencesDto savePreferences(UserPreferencesDto preferencesDto) {
-        log.info("Saving user preferences: userId={}", preferencesDto.getId());
+        log.info("Saving user preferences: userId={}", preferencesDto.getUserId());
         UserPreferences preferences = new UserPreferences();
         preferences.setPreferredChannels(preferencesDto.getPreferredChannels());
-        preferences.setId(preferencesDto.getId());
+        preferences.setUserId(preferencesDto.getUserId());
         preferences.setMutedPreferences(preferencesDto.getMutedPreferences());
 
         UserPreferences savedPreference = preferencesRepository.save(preferences);
-        log.info("Preferences saved: userId={}", preferencesDto.getId());
+        log.info("Preferences saved: userId={}", preferencesDto.getUserId());
         return toDTO(savedPreference);
     }
 
@@ -38,7 +40,7 @@ public class PreferenceService {
         if(userPreferencesOptional.isPresent()){
             UserPreferences userPreferences = new UserPreferences();
 
-            userPreferences.setId(userId);
+            userPreferences.setUserId(userId);
             userPreferences.setPreferredChannels(preferencesDto.getPreferredChannels());
             userPreferences.setMutedPreferences(preferencesDto.getMutedPreferences());
 
@@ -53,10 +55,21 @@ public class PreferenceService {
     private UserPreferencesDto toDTO(UserPreferences userPreferences) {
         UserPreferencesDto preferencesDto = new UserPreferencesDto();
 
-        preferencesDto.setId(userPreferences.getId());
+        preferencesDto.setUserId(userPreferences.getUserId());
         preferencesDto.setMutedPreferences(userPreferences.getMutedPreferences());
         preferencesDto.setPreferredChannels(userPreferences.getPreferredChannels());
 
         return preferencesDto;
+    }
+
+    public List<String> createDefaultPreferences(String userId) {
+        UserPreferencesDto defaultUserPreference = new UserPreferencesDto();
+        defaultUserPreference.setUserId(userId);
+        defaultUserPreference.setMutedPreferences(List.of());
+        defaultUserPreference.setPreferredChannels(Arrays.asList("WEB_PUSH", "WEBSOCKET", "EMAIL"));
+
+        savePreferences(defaultUserPreference);
+        log.info("Default preferences created for userId={}", userId);
+        return defaultUserPreference.getPreferredChannels();
     }
 }
