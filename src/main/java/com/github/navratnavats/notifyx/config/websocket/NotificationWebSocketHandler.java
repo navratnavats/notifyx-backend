@@ -11,18 +11,21 @@ import org.springframework.web.socket.handler.TextWebSocketHandler;
 
 import java.io.IOException;
 import java.util.Map;
+import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
 
 @Component
 @Slf4j
 public class NotificationWebSocketHandler extends TextWebSocketHandler {
 
-    Map<String, WebSocketSession> activeSessions = new ConcurrentHashMap<>();
+    private static final Map<String, WebSocketSession> activeSessions = new ConcurrentHashMap<>();
 
     @Override
     public void afterConnectionEstablished(WebSocketSession session) throws Exception {
-        String userId = session.getPrincipal() != null ? session.getPrincipal().getName() : session.getId();
+        String userId = Objects.requireNonNull(session.getUri()).getQuery().split("=")[1];
+//        String userId = session.getPrincipal() != null ? session.getPrincipal().getName() : session.getId();
         activeSessions.put(userId, session);
+        log.info(activeSessions.toString());
         log.info("WebSocket connection established for user: {}", userId);
     }
 
@@ -38,8 +41,8 @@ public class NotificationWebSocketHandler extends TextWebSocketHandler {
 
     @Override
     public void afterConnectionClosed(WebSocketSession session, CloseStatus status) throws Exception {
-        String userId = session.getPrincipal() != null ? session.getPrincipal().getName() : session.getId();
-
+        String userId = Objects.requireNonNull(session.getUri()).getQuery().split("=")[1];
+        log.info(activeSessions.toString());
         activeSessions.remove(userId);
         log.info("WebSocket connection closed for userId {}", userId);
     }
