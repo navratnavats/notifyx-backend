@@ -1,11 +1,9 @@
 package com.github.navratnavats.notifyx.dto;
 
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
 import lombok.Setter;
-import org.springframework.data.annotation.Id;
-import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -13,16 +11,16 @@ import java.util.List;
 @Getter
 @Setter
 @AllArgsConstructor
-@NoArgsConstructor
+@Builder
 public class NotificationDto {
 
-    private String id;
-    private String userId;
-    private String message;
-    private String eventType;
-    private List<String> channels;
-    private boolean delivered;
-    private LocalDateTime timeStamp;
+    private final String id;
+    private final String userId;
+    private final String message;
+    private final String eventType;
+    private final List<String> channels;
+    private final boolean delivered;
+    private final LocalDateTime timeStamp;
 
     @Override
     public String toString() {

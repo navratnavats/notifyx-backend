@@ -66,17 +66,17 @@ modern technologies like Kafka, MongoDB, and Docker for efficient event processi
 ### Endpoints
 
 #### Event Delivery
-- **POST** `/api/v1/notification-delivery/send-kafka`
+- **POST** `/api/send/kafka`
     - Sends an event to Kafka for processing.
 
-- **POST** `/api/v1/notification-delivery/send-notification`
+- **POST** `/api/send/notification`
     - Directly processes and delivers a notification.
 
 #### User Preferences
-- **GET** `/api/v1/preference/get-user-preference/{userId}`
+- **GET** `/api/preference/user/{userId}`
     - Retrieves user preferences.
 
-- **PUT** `/api/v1/preference/change/{userId}`
+- **PUT** `/api/preference/update/{userId}`
     - Updates user preferences.
 
 ### Environment Variables

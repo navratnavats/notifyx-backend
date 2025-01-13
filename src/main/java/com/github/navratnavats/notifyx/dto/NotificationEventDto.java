@@ -25,7 +25,7 @@ public class NotificationEventDto {
                 "userID='" + userId + '\'' +
                 ", eventType='" + eventType + '\'' +
                 ", message='" + message + '\'' +
-                ", metadata=" + metadata + '\''+
+                ", metadata=" + metadata + '\'' +
                 ", channel=" + channels +
                 '}';
     }
