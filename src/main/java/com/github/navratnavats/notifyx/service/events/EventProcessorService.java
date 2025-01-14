@@ -1,19 +1,17 @@
 package com.github.navratnavats.notifyx.service.events;
 
-import com.github.navratnavats.notifyx.config.websocket.NotificationWebSocketHandler;
 import com.github.navratnavats.notifyx.dto.NotificationDto;
 import com.github.navratnavats.notifyx.dto.NotificationEventDto;
 import com.github.navratnavats.notifyx.dto.UserPreferencesDto;
 import com.github.navratnavats.notifyx.service.notification.NotificationDeliveryService;
 import com.github.navratnavats.notifyx.service.notification.NotificationService;
 import com.github.navratnavats.notifyx.service.preference.PreferenceService;
+import com.github.navratnavats.notifyx.utils.NotificationTransformer;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.web.socket.WebSocketSession;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
@@ -40,18 +38,16 @@ public class EventProcessorService {
         log.info("Processing event: eventType={}, userId={}", eventType, userId);
         Optional<UserPreferencesDto> preferencesDtoOptional = preferenceService.getUserPreference(userId);
 
-        if(notificationEventDto.getChannels() == null || notificationEventDto.getChannels().isEmpty()){
-            if(preferencesDtoOptional.isPresent()){
+        if (notificationEventDto.getChannels() == null || notificationEventDto.getChannels().isEmpty()) {
+            if (preferencesDtoOptional.isPresent()) {
                 channels = preferencesDtoOptional.get().getPreferredChannels();
-            }
-            else {
+            } else {
                 channels = preferenceService.createDefaultPreferences(userId);
 
             }
-        }
-        else {
+        } else {
             channels = notificationEventDto.getChannels();
-            if(!preferencesDtoOptional.isPresent()) {
+            if (preferencesDtoOptional.isEmpty()) {
                 saveUserPreference(channels, userId);
             }
         }
@@ -63,13 +59,13 @@ public class EventProcessorService {
         }
 
         log.info("Building notification for userId={}", userId);
-        NotificationDto notificationDto = notificationService.buildNotification(eventType, userId, message, channels);
+        NotificationDto notificationDto = NotificationTransformer.buildNotification(eventType, userId, message, channels);
 
         log.info("Delivering notification for userId={}", userId);
-        notificationDto.setDelivered(deliveryService.deliverNotification(notificationDto));
+        boolean isDelivered = deliveryService.deliverNotification(notificationDto);
 
         log.info("Creating notification record for userId={}", userId);
-        NotificationDto createdNotificationDTO = notificationService.createNotification(notificationDto);
+        NotificationDto createdNotificationDTO = notificationService.createNotification(notificationDto, isDelivered);
 
         log.info("Event successfully processed for userId={}", userId);
 
@@ -77,26 +73,28 @@ public class EventProcessorService {
     }
 
     private void saveUserPreference(List<String> channels, String userId) {
-        UserPreferencesDto preferencesDto = new UserPreferencesDto();
-        preferencesDto.setPreferredChannels(channels);
-        preferencesDto.setUserId(userId);
-        preferencesDto.setMutedPreferences(List.of());
+        UserPreferencesDto preferencesDto = UserPreferencesDto.builder()
+                .preferredChannels(channels)
+                .userId(userId)
+                .mutedPreferences(List.of())
+                .build();
+
         preferenceService.savePreferences(preferencesDto);
     }
 
     private boolean isMutedEvent(UserPreferencesDto preferencesDto, List<String> channels, String userId) {
         int mutedChannels = 0;
         List<String> mutedPreferences = preferencesDto.getMutedPreferences();
-        if (mutedPreferences != null){
-            for(String channel : channels){
-                if(mutedPreferences.contains(channel)) {
+        if (mutedPreferences != null) {
+            for (String channel : channels) {
+                if (mutedPreferences.contains(channel)) {
                     log.info("Muted channel detected: channel={}, userId={}", channel, userId);
                     mutedChannels++;
                 }
             }
-            if(mutedChannels == channels.size())
+            if (mutedChannels == channels.size())
                 return true;
-            else{
+            else {
                 log.info("Removing muted channels");
                 channels.removeAll(mutedPreferences);
                 log.info("Channel list after muted channels {}", channels);

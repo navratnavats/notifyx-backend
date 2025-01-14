@@ -3,6 +3,7 @@ package com.github.navratnavats.notifyx.service.preference;
 import com.github.navratnavats.notifyx.dto.UserPreferencesDto;
 import com.github.navratnavats.notifyx.model.UserPreferences;
 import com.github.navratnavats.notifyx.repository.UserPreferencesRepository;
+import com.github.navratnavats.notifyx.utils.NotificationTransformer;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -10,6 +11,8 @@ import org.springframework.stereotype.Service;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
+
+import static com.github.navratnavats.notifyx.utils.NotificationTransformer.toUserPreferencesDTO;
 
 @Service
 @Slf4j
@@ -27,46 +30,34 @@ public class PreferenceService {
 
         UserPreferences savedPreference = preferencesRepository.save(preferences);
         log.info("Preferences saved: userId={}", preferencesDto.getUserId());
-        return toDTO(savedPreference);
+        return toUserPreferencesDTO(savedPreference);
     }
 
     public Optional<UserPreferencesDto> getUserPreference(String userId){
         Optional<UserPreferences> userPreferences = preferencesRepository.findById(userId);
-        return userPreferences.map(this::toDTO);
+        return userPreferences.map(NotificationTransformer::toUserPreferencesDTO);
     }
 
     public UserPreferencesDto editPreferences(String userId, UserPreferencesDto preferencesDto){
         Optional<UserPreferences> userPreferencesOptional = preferencesRepository.findById(userId);
         if(userPreferencesOptional.isPresent()){
-            UserPreferences userPreferences = new UserPreferences();
-
-            userPreferences.setUserId(userId);
-            userPreferences.setPreferredChannels(preferencesDto.getPreferredChannels());
-            userPreferences.setMutedPreferences(preferencesDto.getMutedPreferences());
+            UserPreferences userPreferences = UserPreferences.builder()
+                    .userId(userId)
+                    .preferredChannels(preferencesDto.getPreferredChannels())
+                    .mutedPreferences(preferencesDto.getMutedPreferences()).build();
 
             UserPreferences savedPreference = preferencesRepository.save(userPreferences);
-            return toDTO(savedPreference);
-
+            return toUserPreferencesDTO(savedPreference);
         }
         return null;
-
-    }
-
-    private UserPreferencesDto toDTO(UserPreferences userPreferences) {
-        UserPreferencesDto preferencesDto = new UserPreferencesDto();
-
-        preferencesDto.setUserId(userPreferences.getUserId());
-        preferencesDto.setMutedPreferences(userPreferences.getMutedPreferences());
-        preferencesDto.setPreferredChannels(userPreferences.getPreferredChannels());
-
-        return preferencesDto;
     }
 
     public List<String> createDefaultPreferences(String userId) {
-        UserPreferencesDto defaultUserPreference = new UserPreferencesDto();
-        defaultUserPreference.setUserId(userId);
-        defaultUserPreference.setMutedPreferences(List.of());
-        defaultUserPreference.setPreferredChannels(Arrays.asList("WEB_PUSH", "WEBSOCKET", "EMAIL"));
+        UserPreferencesDto defaultUserPreference =UserPreferencesDto.builder()
+                .preferredChannels(Arrays.asList("WEB_PUSH", "WEBSOCKET", "EMAIL"))
+                .userId(userId)
+                .mutedPreferences(List.of())
+                .build();
 
         savePreferences(defaultUserPreference);
         log.info("Default preferences created for userId={}", userId);
